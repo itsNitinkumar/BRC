@@ -6,7 +6,7 @@ services:
       context: .
       target: final
     environment:
-     - LEVEL 
+      - LEVEL=${LEVEL:-1}  # Added default value
     volumes:
       - ./testcases:/usr/src/app/testcases
       - ./src:/usr/src/app/src # UNCOMMENT THIS FOR LOCAL TESTING
