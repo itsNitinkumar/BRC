@@ -91,8 +91,22 @@ def main(input_file_name="testcase.txt", output_file_name="output.txt"):
     chunks = [(i * chunk_size, file_size if i == num_procs - 1 else (i + 1) * chunk_size)
               for i in range(num_procs)]
     
+    # Adjust boundaries to ensure proper line splits
+    tasks = []
+    for start, end in chunks:
+        # Adjust the start if necessary to avoid splitting a line
+        if start > 0:
+            start = mm.rfind(b'\n', 0, start) + 1
+        # Adjust the end to include a complete line
+        if end < file_size:
+            end = mm.find(b'\n', end)
+            if end == -1:
+                end = file_size
+            else:
+                end += 1
+        tasks.append((input_file_name, start, end))
+    
     with multiprocessing.Pool(num_procs) as pool:
-        tasks = [(input_file_name, start, end) for start, end in chunks]
         results = pool.starmap(process_chunk, tasks)
     
     final_data = merge_data(results)
